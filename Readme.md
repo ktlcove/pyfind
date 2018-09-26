@@ -40,5 +40,18 @@ optional arguments:
                         打印条件： 要显示的列`,`分割，目前有俩(inode,asize)
 ```
 
+
+## example usage and success output
+```bash
+pyfind --min-size=512m --show-size-unit=g /
+/System/Library/Speech/Voices/Ting-Ting.SpeechVoice/Contents/Resources/PCMWave	0.59g	8590906590
+/System/Library/Caches/com.apple.coresymbolicationd/data	6.36g	8603462983
+/private/var/db/dyld/dyld_shared_cache_x86_64h	1.09g	8604343544
+/Users/ktlcove/Library/Android/sdk/system-images/android-27/google_apis/x86/system.img	2.51g	8592387592
+/Users/ktlcove/Library/Android/sdk/system-images/android-27/google_apis/x86/userdata.img	0.55g	8592387533
+/Users/ktlcove/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw	3.19g	8604456973
+...
+```
+
 # todo:
     can't run in python 2.7
