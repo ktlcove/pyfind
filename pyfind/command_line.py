@@ -7,7 +7,7 @@ class Arguments:
     def __init__(self, args=sys.argv[1:]):
         self.origin_args = args
         self.parser = argparse.ArgumentParser(description="",
-                                              prog="python -m pyfind")
+                                              prog="pyfind")
 
     @property
     def add_argument(self):

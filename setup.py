@@ -15,7 +15,7 @@ else:
 setup(
     name='pyfind',  # Required
 
-    version='0.0.1',  # Required
+    version='0.0.2',  # Required
 
     description='linux find command python lib',  # Required
 
@@ -44,7 +44,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
+        # 'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.5',
@@ -68,11 +68,11 @@ setup(
 
     # data_files=[('my_data', ['data/data_file'])],  # Optional
 
-    # entry_points={  # Optional
-    #     'console_scripts': [
-    #         'sample=sample:main',
-    #     ],
-    # },
+    entry_points={  # Optional
+        'console_scripts': [
+            'pyfind=pyfind.__main__:main',
+        ],
+    },
 
     # project_urls={  # Optional
     #     'Bug Reports': 'https://github.com/pypa/sampleproject/issues',

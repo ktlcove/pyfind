@@ -1,9 +1,8 @@
-from pyfind import environment_check, Find
+from pyfind import Find, environment_check
 from pyfind.command_line import Arguments
 
-if __name__ == '__main__':
-    environment_check()
 
+def main():
     arguments = Arguments()
     arguments.add_argument("--min-size", action="store", dest="min_size",
                            default=None, type=str,
@@ -12,6 +11,10 @@ if __name__ == '__main__':
     arguments.add_argument("--max-size", action="store", dest="max_size",
                            default=None, type=str,
                            help="过滤条件： 文件最大大小")
+
+    arguments.add_argument("--ncdu-path", action="store", dest="ncdu_path",
+                           default="ncdu",
+                           help="功能参数： ncdu execute file path")
 
     arguments.add_argument("--recurse", action="store_true", dest="recurse",
                            default=True,
@@ -44,13 +47,19 @@ if __name__ == '__main__':
     arguments.add_argument("path", type=str,
                            help="查找的根目录")
 
-    r = Find(arguments.args.path,
-             recurse=arguments.args.recurse,
-             min_size=arguments.args.min_size,
-             max_size=arguments.args.max_size,
-             with_dir=arguments.args.with_dir,
-             columns=arguments.args.show_columns.split(",") \
-                 if arguments.args.show_columns else None). \
+    environment_check(arguments.args.ncdu_path)
+
+    Find(arguments.args.path,
+         recurse=arguments.args.recurse,
+         min_size=arguments.args.min_size,
+         max_size=arguments.args.max_size,
+         with_dir=arguments.args.with_dir,
+         columns=arguments.args.show_columns.split(",") \
+             if arguments.args.show_columns else None,
+         ncdu_path=arguments.args.ncdu_path). \
         show(sep=arguments.args.show_sep,
              end=arguments.args.show_end,
              size_unit=arguments.args.show_size_unit)
+
+if __name__ == '__main__':
+    main()

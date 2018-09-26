@@ -3,20 +3,26 @@ import json
 import os
 import subprocess
 
-from pyfind import CONFIG
-
 
 class Ncdu:
 
+    """
+    find 的文件大小检索在这里做
+    """
+
     def __init__(self, ncdu_path=None):
-        self.ncdu = ncdu_path or CONFIG["ncdu_path"]
+        # 可执行文件路径
+        self.ncdu = ncdu_path or "ncdu"
 
     @property
     def cmd(self):
         return f"{self.ncdu} -0xo- {{0}} 2> /dev/null "
 
     def _execute(self, path):
-
+        """
+        输入是目标目录
+        输出为目录内所有文件及信息
+        """
         if not os.path.isdir(path):
             raise RuntimeError(f"input must be a dir")
 
@@ -31,6 +37,15 @@ class Ncdu:
         return real_data
 
     def _filter_one(self, item, base_path, min_size, max_size, result):
+
+        """
+        根据条件决定是否将item加入到result
+        并返回item的dsize
+
+        没有asize 没有dsize的文件是空文件
+        文件夹没有dsize只有asize
+        """
+
         if min_size is not None and item.get("dsize", 0) < min_size:
             return item.get("dsize", 0)
         if max_size is not None and item.get("dsize", 0) > max_size:
@@ -43,6 +58,8 @@ class Ncdu:
     def _filter(self, data, base_path=None, recurse=False,
                 min_size=None, max_size=None, with_dir=None,
                 result=None):
+
+        """递归检索data"""
 
         if type(data) is dict:
             # dict 是个文件
@@ -66,6 +83,15 @@ class Ncdu:
 
     def execute(self, path, recurse=False, min_size=None, max_size=None,
                 with_dir=None):
+        """
+        入口
+        :param path: 目标文件夹路径
+        :param recurse: 递归检索
+        :param min_size: 最小大小
+        :param max_size: 最大大小
+        :param with_dir: 检索文件夹大小
+        :return: 符合要求的文件及信息 （dict格式）
+        """
         data = self._execute(path)
         result = collections.OrderedDict()
         self._filter(data, base_path=None,

@@ -1,19 +1,23 @@
 import re
 import shutil
 
-from pyfind.config import CONFIG
 from pyfind.ncdu import Ncdu
 
 
-def environment_check():
-    if not shutil.which(CONFIG["ncdu_path"]):
-        raise RuntimeError(f'{CONFIG["ncdu_path"]} command not found.')
+def environment_check(ncdu_path):
+    if not shutil.which(ncdu_path):
+        raise RuntimeError(f'{ncdu_path} command not found.')
 
 
 Key = re.compile(r'(?P<size>\d+)(?P<unit>k|m|g)?', flags=re.I)
 
 
 def size(s):
+
+    """
+    把输入转化成字节数
+    """
+
     if s is None:
         return None
     if type(s) is str:
@@ -41,6 +45,11 @@ def size(s):
 
 
 def convert_size_by_unit(size, unit):
+
+    """
+    把字节数转成对应单位
+    """
+
     if unit == "g":
         return size / 1024 / 1024 / 1024
 
@@ -62,22 +71,25 @@ class Find:
         用户接口方法
         返回为dict
         key 为 路径 ， value 为详细信息 （k->v， dict格式）
+
+    show
+        pretty 加强版的 run
     """
 
     DEFAULT_COLUMNS = ["dsize", "inode"]
 
     def __init__(self, path, min_size=None, max_size=None, recurse=True,
-                 ext_args=None, columns=None, with_dir=None):
+                 columns=None, with_dir=None, **kwargs):
         self.path = path
         self.min_size = size(min_size)
         self.max_size = size(max_size)
         self.recurse = recurse
-        self.ext_args = ext_args or {}
+        self.kwargs = kwargs
         self.columns = columns or self.DEFAULT_COLUMNS
         self.with_dir = with_dir
 
     def _filter_size(self):
-        ncdu = Ncdu(ncdu_path=self.ext_args.get("ncdu_path", None))
+        ncdu = Ncdu(ncdu_path=self.kwargs.get("ncdu_path", None))
         result = ncdu.execute(self.path, recurse=self.recurse,
                               min_size=self.min_size, max_size=self.max_size,
                               with_dir=self.with_dir)
