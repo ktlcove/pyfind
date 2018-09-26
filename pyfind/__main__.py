@@ -17,6 +17,10 @@ if __name__ == '__main__':
                            default=True,
                            help="功能条件： 递归检索， 如果为False 只检查当前目录")
 
+    arguments.add_argument("--with-dir", action="store_true", dest="with_dir",
+                           default=False,
+                           help="功能条件： 目录类型是否是目标对象")
+
     arguments.add_argument("--show-sep", action="store", dest="show_sep",
                            default="\t", type=str,
                            help="打印条件： 水平分隔符")
@@ -29,7 +33,7 @@ if __name__ == '__main__':
                            dest="show_size_unit",
                            default="", type=str,
                            choices=["m", "g", "k", ""],
-                           help="打印条件： 垂直分隔符")
+                           help="打印条件： 文件大小的单位")
 
     arguments.add_argument("--show-columns", action="store",
                            dest="show_columns",
@@ -38,12 +42,13 @@ if __name__ == '__main__':
                                 "目前有俩(inode,asize)")
 
     arguments.add_argument("path", type=str,
-                           help="run find in this dir")
+                           help="查找的根目录")
 
     r = Find(arguments.args.path,
              recurse=arguments.args.recurse,
              min_size=arguments.args.min_size,
              max_size=arguments.args.max_size,
+             with_dir=arguments.args.with_dir,
              columns=arguments.args.show_columns.split(",") \
                  if arguments.args.show_columns else None). \
         show(sep=arguments.args.show_sep,

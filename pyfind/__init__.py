@@ -67,18 +67,20 @@ class Find:
     DEFAULT_COLUMNS = ["dsize", "inode"]
 
     def __init__(self, path, min_size=None, max_size=None, recurse=True,
-                 ext_args=None, columns=None):
+                 ext_args=None, columns=None, with_dir=None):
         self.path = path
         self.min_size = size(min_size)
         self.max_size = size(max_size)
         self.recurse = recurse
         self.ext_args = ext_args or {}
         self.columns = columns or self.DEFAULT_COLUMNS
+        self.with_dir = with_dir
 
     def _filter_size(self):
         ncdu = Ncdu(ncdu_path=self.ext_args.get("ncdu_path", None))
         result = ncdu.execute(self.path, recurse=self.recurse,
-                              min_size=self.min_size, max_size=self.max_size)
+                              min_size=self.min_size, max_size=self.max_size,
+                              with_dir=self.with_dir)
         return result
 
     def run(self) -> dict:

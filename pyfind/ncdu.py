@@ -21,7 +21,6 @@ class Ncdu:
             raise RuntimeError(f"input must be a dir")
 
         code, origin_result = subprocess.getstatusoutput(self.cmd.format(path))
-
         if code != 0:
             raise RuntimeError(f"{self.cmd.format(path)} return: {code} != 0")
 
@@ -42,7 +41,7 @@ class Ncdu:
         return item.get("dsize", 0)
 
     def _filter(self, data, base_path=None, recurse=False,
-                min_size=None, max_size=None,
+                min_size=None, max_size=None, with_dir=None,
                 result=None):
 
         if type(data) is dict:
@@ -59,14 +58,17 @@ class Ncdu:
                                      max_size=max_size, result=result,
                                      recurse=recurse)
                     dir_total += s
-            self._filter_one(data[0], base_path, min_size, max_size, result)
+            if with_dir:
+                self._filter_one({**data[0], "dsize": dir_total},
+                                 base_path, min_size, max_size, result)
 
             return dir_total
 
-    def execute(self, path, recurse=False, min_size=None, max_size=None):
+    def execute(self, path, recurse=False, min_size=None, max_size=None,
+                with_dir=None):
         data = self._execute(path)
         result = collections.OrderedDict()
         self._filter(data, base_path=None,
-                            min_size=min_size, max_size=max_size,
-                            recurse=recurse, result=result)
+                     min_size=min_size, max_size=max_size,
+                     recurse=recurse, result=result, with_dir=with_dir)
         return result
