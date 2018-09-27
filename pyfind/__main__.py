@@ -1,3 +1,4 @@
+# coding:utf8
 from pyfind import Find, environment_check
 from pyfind.command_line import Arguments
 

@@ -1,11 +1,11 @@
+# coding:utf8
 import collections
 import json
 import os
-import subprocess
 
+from pyfind._six import getstatusoutput
 
 class Ncdu:
-
     """
     find 的文件大小检索在这里做
     """
@@ -16,7 +16,7 @@ class Ncdu:
 
     @property
     def cmd(self):
-        return f"{self.ncdu} -0xo- {{0}} 2> /dev/null "
+        return self.ncdu + ' -0xo- {} 2> /dev/null'
 
     def _execute(self, path):
         """
@@ -24,11 +24,12 @@ class Ncdu:
         输出为目录内所有文件及信息
         """
         if not os.path.isdir(path):
-            raise RuntimeError(f"input must be a dir")
+            raise RuntimeError("input must be a dir")
 
-        code, origin_result = subprocess.getstatusoutput(self.cmd.format(path))
+        code, origin_result = getstatusoutput(self.cmd.format(path))
         if code != 0:
-            raise RuntimeError(f"{self.cmd.format(path)} return: {code} != 0")
+            cmd = self.cmd.format(path)
+            raise RuntimeError("{} return: {} != 0".format(cmd, code))
 
         data = json.loads(origin_result)
 
@@ -76,7 +77,8 @@ class Ncdu:
                                      recurse=recurse)
                     dir_total += s
             if with_dir:
-                self._filter_one({**data[0], "dsize": dir_total},
+                data[0]["dsize"] = dir_total
+                self._filter_one(data[0],
                                  base_path, min_size, max_size, result)
 
             return dir_total

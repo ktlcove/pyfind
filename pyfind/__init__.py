@@ -1,19 +1,34 @@
+# coding:utf8
+import os
 import re
-import shutil
+
+from six import print_
 
 from pyfind.ncdu import Ncdu
 
 
+def which(pgm):
+    if os.path.isabs(pgm):
+        if os.path.exists(pgm) and os.access(pgm, os.X_OK):
+            return pgm
+        else:
+            return
+    path = os.getenv('PATH')
+    for p in path.split(os.path.pathsep):
+        p = os.path.join(p, pgm)
+        if os.path.exists(p) and os.access(p, os.X_OK):
+            return p
+
+
 def environment_check(ncdu_path):
-    if not shutil.which(ncdu_path):
-        raise RuntimeError(f'{ncdu_path} command not found.')
+    if not which(ncdu_path):
+        raise RuntimeError('{ncdu_path} command not found.'.format(**vars()))
 
 
 Key = re.compile(r'(?P<size>\d+)(?P<unit>k|m|g)?', flags=re.I)
 
 
 def size(s):
-
     """
     把输入转化成字节数
     """
@@ -23,7 +38,7 @@ def size(s):
     if type(s) is str:
         result = Key.match(s)
         if not result:
-            raise ValueError(f"{s} is not a regular input")
+            raise ValueError("{s} is not a regular input".format(**vars()))
         size = int(result.groupdict().get("size"))
         unit = result.groupdict().get("unit")
         if unit:
@@ -45,7 +60,6 @@ def size(s):
 
 
 def convert_size_by_unit(size, unit):
-
     """
     把字节数转成对应单位
     """
@@ -95,21 +109,21 @@ class Find:
                               with_dir=self.with_dir)
         return result
 
-    def run(self) -> dict:
+    def run(self):
         result = self._filter_size()
         return result
 
     def show(self, sep="\t", end="\n", size_unit="m"):
         for path, detail in self.run().items():
-            print(f"{path}", end="")
+            print_(path, end="")
             for key in self.columns:
-                print(sep, end="")
+                print_(sep, end="")
                 if key == "dsize":
-                    print("{:0.2f}{}".format(
+                    print_("{:0.2f}{}".format(
                         convert_size_by_unit(detail.get(key), size_unit),
                         size_unit),
                         end="")
 
                 else:
-                    print(detail.get(key, "-"), end="")
-            print(end, end="")
+                    print_(detail.get(key, "-"), end="")
+            print_(end, end="")

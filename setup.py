@@ -1,3 +1,4 @@
+# coding:utf8
 import os
 
 from setuptools import setup, find_packages
@@ -8,14 +9,14 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 readme = os.path.join(here, 'Readme.md')
 if os.path.exists(readme):
-    with open(readme, encoding='utf-8') as f:
+    with open(readme) as f:
         long_description = f.read()
 else:
     long_description = ''
 setup(
     name='pyfind',  # Required
 
-    version='0.0.2',  # Required
+    version='0.0.3',  # Required
 
     description='linux find command python lib',  # Required
 
@@ -44,7 +45,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        # 'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.5',
@@ -54,7 +55,9 @@ setup(
 
     packages=find_packages(include=('pyfind',)),  # Required
 
-    install_requires=[],  # Optional
+    install_requires=[
+        "six"
+    ],  # Optional
 
     #   $ pip install sampleproject[dev]
     #

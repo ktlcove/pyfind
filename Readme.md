@@ -52,6 +52,3 @@ pyfind --min-size=512m --show-size-unit=g /
 /Users/ktlcove/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw	3.19g	8604456973
 ...
 ```
-
-# todo:
-    can't run in python 2.7
