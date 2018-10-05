@@ -5,6 +5,77 @@ import os
 
 from pyfind._six import getstatusoutput
 
+
+class SortedDict:
+
+    def __init__(self, size):
+        self._size = size
+        self._data = collections.defaultdict(list)
+        self._order = []
+        self._count = 0
+
+    def __len__(self):
+        return self._count
+
+    @property
+    def min(self):
+        if self._order:
+            return self._order[0]
+        return None
+
+    @property
+    def max(self):
+        if self._order:
+            return self._order[-1]
+        return None
+
+    def keys(self):
+        return self._order[::-1]
+
+    def __setitem__(self, key, value):
+        if self._count < self._size:
+            self._data[key].append(value)
+            self._count += 1
+            self._order.append(key)
+            self._order.sort()
+        elif key >= self.min:
+            self._data[key].append(value)
+            self._count += 1
+            self._order.append(key)
+            self._order.sort()
+            # pop
+            if self._count - self._size and \
+                    self._count - self._size == len(self._data[self.min]):
+                self._data.pop(self.min)
+                self._order = self._order[self._count - self._size:]
+
+                # print(key, value, self._order,
+                #     {k: len(v) for k, v in self._data.items()})
+
+                self._count = len(self._order)
+
+    def items(self):
+        keys = list(set(self._order))
+        keys.sort()
+        keys.reverse()
+        # print(keys)
+        # pprint.pprint(dict(self._data))
+        result = []
+        for key in keys:
+            # print("add ", key)
+            for v in self._data[key]:
+                # print("add ", key, v)
+                result.append((key, v))
+        # pprint.pprint(result)
+        return result
+
+    def __getitem__(self, item):
+        return self._data.__getitem__(item)
+
+    def __iter__(self):
+        return self._order.__iter__()
+
+
 class Ncdu:
     """
     find 的文件大小检索在这里做
@@ -36,6 +107,14 @@ class Ncdu:
         real_data = data[3]
 
         return real_data
+
+    def _set_count(self, data):
+        if type(data) is list:
+            data[0]["ino_count"] = len(data) - 1 + sum([
+                self._set_count(i) if type(i) is list else 1 for i in data[1:]
+            ])
+            return data[0]["ino_count"]
+        return 1
 
     def _filter_one(self, item, base_path, min_size, max_size, result):
 
@@ -100,3 +179,35 @@ class Ncdu:
                      min_size=min_size, max_size=max_size,
                      recurse=recurse, result=result, with_dir=with_dir)
         return result
+
+    def _get_size_top_add_one(self, item, base_path, result):
+        path = os.path.join(base_path, item["name"]) if base_path \
+            else item["name"]
+        result[item.get("dsize")] = {"dsize": item.get("dsize", 0),
+                                     "inode": item["ino"],
+                                     "path": path}
+
+    def _get_size_top(self, data, base_path=None, result=None):
+        if type(data) is dict:
+            # dict 是个文件
+            self._get_size_top_add_one(data, base_path=base_path, result=result)
+        else:
+            # list 是个目录 第一个元素是目录自身 其余是目录内子项
+            path = os.path.join(base_path, data[0]["name"]) if base_path \
+                else data[0]["name"]
+            for item in data[1:]:
+                self._get_size_top(item, base_path=path, result=result)
+
+    def get_size_top(self, path, count=10):
+        data = self._execute(path)
+        result = SortedDict(count)
+        self._get_size_top(data, base_path=None, result=result)
+        real_result = collections.OrderedDict()
+
+        for size, info in result.items():
+            # print(size, info)
+            real_result[info["path"]] = info
+        return real_result
+
+    def get_inode_top(self, n=10):
+        pass

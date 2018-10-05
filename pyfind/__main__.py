@@ -5,6 +5,14 @@ from pyfind.command_line import Arguments
 
 def main():
     arguments = Arguments()
+
+    arguments.add_argument("--mode", action="store",
+                           dest="mode",
+                           default="manual", type=str,
+                           choices=["manual", "sizetop", "inodetop"],
+                           help="筛选模式 默认为手动（manual）， 需自定义各个筛选参数"
+                                "sizetop: 获取指定目录下count个最大文件")
+
     arguments.add_argument("--min-size", action="store", dest="min_size",
                            default=None, type=str,
                            help="过滤条件： 文件最小大小")
@@ -24,6 +32,10 @@ def main():
     arguments.add_argument("--with-dir", action="store_true", dest="with_dir",
                            default=False,
                            help="功能条件： 目录类型是否是目标对象")
+
+    arguments.add_argument("--count", action="store", dest="count",
+                           default=10, type=int,
+                           help="功能条件： 查询结果数量控制器")
 
     arguments.add_argument("--show-sep", action="store", dest="show_sep",
                            default="\t", type=str,
@@ -51,16 +63,19 @@ def main():
     environment_check(arguments.args.ncdu_path)
 
     Find(arguments.args.path,
+         mode=arguments.args.mode,
          recurse=arguments.args.recurse,
          min_size=arguments.args.min_size,
          max_size=arguments.args.max_size,
          with_dir=arguments.args.with_dir,
          columns=arguments.args.show_columns.split(",") \
              if arguments.args.show_columns else None,
-         ncdu_path=arguments.args.ncdu_path). \
+         ncdu_path=arguments.args.ncdu_path,
+         count=arguments.args.count). \
         show(sep=arguments.args.show_sep,
              end=arguments.args.show_end,
              size_unit=arguments.args.show_size_unit)
+
 
 if __name__ == '__main__':
     main()

@@ -16,7 +16,7 @@ else:
 setup(
     name='pyfind',  # Required
 
-    version='0.0.3',  # Required
+    version='0.1.0',  # Required
 
     description='linux find command python lib',  # Required
 

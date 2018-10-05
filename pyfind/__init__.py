@@ -92,15 +92,18 @@ class Find:
 
     DEFAULT_COLUMNS = ["dsize", "inode"]
 
-    def __init__(self, path, min_size=None, max_size=None, recurse=True,
+    def __init__(self, path, mode="manual", min_size=None, max_size=None,
+                 recurse=True, count=10,
                  columns=None, with_dir=None, **kwargs):
         self.path = path
+        self.mode = mode
         self.min_size = size(min_size)
         self.max_size = size(max_size)
         self.recurse = recurse
         self.kwargs = kwargs
         self.columns = columns or self.DEFAULT_COLUMNS
         self.with_dir = with_dir
+        self.count = count
 
     def _filter_size(self):
         ncdu = Ncdu(ncdu_path=self.kwargs.get("ncdu_path", None))
@@ -109,8 +112,18 @@ class Find:
                               with_dir=self.with_dir)
         return result
 
+    def _size_top(self):
+        ncdu = Ncdu(ncdu_path=self.kwargs.get("ncdu_path", None))
+        result = ncdu.get_size_top(self.path, count=self.count)
+        return result
+
     def run(self):
-        result = self._filter_size()
+        if self.mode == "manual":
+            result = self._filter_size()
+        elif self.mode == "sizetop":
+            result = self._size_top()
+        else:
+            result = {}
         return result
 
     def show(self, sep="\t", end="\n", size_unit="m"):
