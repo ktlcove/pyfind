@@ -10,8 +10,9 @@ def main():
                            dest="mode",
                            default="manual", type=str,
                            choices=["manual", "sizetop", "inodetop"],
-                           help="筛选模式 默认为手动（manual）， 需自定义各个筛选参数"
-                                "sizetop: 获取指定目录下count个最大文件")
+                           help="筛选模式 默认为手动（manual） 需自定义各个筛选参数\n"
+                                "sizetop: 获取指定目录下count个最大文件\n"
+                                "inodetop: 获取指定目录下count个inode最多的目录")
 
     arguments.add_argument("--min-size", action="store", dest="min_size",
                            default=None, type=str,
@@ -55,7 +56,7 @@ def main():
                            dest="show_columns",
                            default=None, type=str,
                            help="打印条件： 要显示的列`,`分割，"
-                                "目前有俩(inode,asize)")
+                                "ino, asize, dsize, ino_count")
 
     arguments.add_argument("path", type=str,
                            help="查找的根目录")

@@ -108,12 +108,21 @@ class Ncdu:
 
         return real_data
 
-    def _set_count(self, data):
+    def _set_count(self, data, result, base_path=None):
         if type(data) is list:
+            path = os.path.join(base_path, data[0]["name"]) if base_path \
+                else data[0]["name"]
+
             data[0]["ino_count"] = len(data) - 1 + sum([
-                self._set_count(i) if type(i) is list else 1 for i in data[1:]
+                self._set_count(i, result, base_path=path)
+                if type(i) is list else 1 for i in data[1:]
             ])
+            data[0]["path"] = path
+
+            result[data[0]["ino_count"]] = data[0]
+
             return data[0]["ino_count"]
+
         return 1
 
     def _filter_one(self, item, base_path, min_size, max_size, result):
@@ -209,5 +218,15 @@ class Ncdu:
             real_result[info["path"]] = info
         return real_result
 
-    def get_inode_top(self, n=10):
-        pass
+    def get_inode_top(self, path, count=10):
+        data = self._execute(path)
+        result = SortedDict(count)
+        self._set_count(data, result)
+        real_result = collections.OrderedDict()
+        for size, info in result.items():
+            real_result[info["path"]] = info
+        return real_result
+
+
+if __name__ == '__main__':
+    Ncdu().get_inode_top(".")
