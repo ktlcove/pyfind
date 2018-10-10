@@ -1,5 +1,6 @@
 # coding:utf8
 import collections
+import heapq
 import json
 import os
 
@@ -20,60 +21,52 @@ class SortedDict:
     @property
     def min(self):
         if self._order:
-            return self._order[0]
+            return heapq.nsmallest(1,self._order).pop()
         return None
 
     @property
     def max(self):
         if self._order:
-            return self._order[-1]
+            return heapq.nlargest(1,self._order).pop()
         return None
 
     def keys(self):
-        return self._order[::-1]
+        if self._order:
+           return heapq.nlargest(self._count, self._order)
+        return []
 
     def __setitem__(self, key, value):
         if self._count < self._size:
             self._data[key].append(value)
             self._count += 1
-            self._order.append(key)
-            self._order.sort()
+            heapq.heappush(self._order, key)
         elif key >= self.min:
             self._data[key].append(value)
             self._count += 1
-            self._order.append(key)
-            self._order.sort()
+            heapq.heappush(self._order, key)
             # pop
             if self._count - self._size and \
                     self._count - self._size == len(self._data[self.min]):
                 self._data.pop(self.min)
-                self._order = self._order[self._count - self._size:]
-
-                # print(key, value, self._order,
-                #     {k: len(v) for k, v in self._data.items()})
+                for i in range(self._count - self._size):
+                    heapq.heappop(self._order)
 
                 self._count = len(self._order)
 
     def items(self):
-        keys = list(set(self._order))
-        keys.sort()
-        keys.reverse()
+        keys = self.keys()
         # print(keys)
         # pprint.pprint(dict(self._data))
         result = []
         for key in keys:
-            # print("add ", key)
-            for v in self._data[key]:
-                # print("add ", key, v)
-                result.append((key, v))
-        # pprint.pprint(result)
+            result.append((key, self._data[key].pop()))
         return result
 
     def __getitem__(self, item):
         return self._data.__getitem__(item)
 
-    def __iter__(self):
-        return self._order.__iter__()
+    # def __iter__(self):
+    #     return self._order.__iter__()
 
 
 class Ncdu:

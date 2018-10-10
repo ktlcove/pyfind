@@ -138,12 +138,11 @@ class Find:
             print_(path, end="")
             for key in self.columns:
                 print_(sep, end="")
-                if key == "dsize":
+                if key == "dsize" and detail.get(key) is not None:
                     print_("{:0.2f}{}".format(
                         convert_size_by_unit(detail.get(key), size_unit),
                         size_unit),
                         end="")
-
                 else:
                     print_(detail.get(key, "-"), end="")
             print_(end, end="")
